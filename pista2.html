@@ -39,7 +39,7 @@
             background-color: var(--color-fondo-oscuro);
             overflow-x: hidden;
             color: var(--color-texto-claro);
-            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24' viewBox='0 0 24 24'><path fill='%2300e6e6' d='M10 16v-4H6V8h4V4h4v4h4v4h-4v4h-4z'/></svg>") 12 12, auto;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%2300e6e6' d='M10 16v-4H6V8h4V4h4v4h4v4h-4v4h-4z'/></svg>") 12 12, auto;
         }
 
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
@@ -94,20 +94,17 @@
             margin-bottom: 0.2em;
         }
         
-        /* --- ✨ CAMBIOS CLAVE PARA EL DISEÑO "ESCRITORIO" --- */
         #puzzle-container {
             display: flex;
-            /* Se elimina 'flex-wrap' para forzar la vista horizontal */
             justify-content: center;
-            align-items: center; /* Centra verticalmente los elementos */
-            gap: 1.5rem; /* Un espacio adaptable */
+            align-items: center;
+            gap: 1.5rem;
             margin-top: 1.5em;
         }
 
         #puzzle-board, #piece-container {
-            flex: 1; /* Hacemos que ambos elementos compartan el espacio por igual */
-            min-width: 0; /* Les permite encogerse sin límite */
-            /* Se eliminan los anchos fijos para que sean flexibles */
+            flex: 1;
+            min-width: 0;
         }
 
         #puzzle-board {
@@ -133,7 +130,7 @@
             gap: 5px;
             padding: 10px;
             box-shadow: 0 0 15px rgba(0,230,230,0.3);
-            aspect-ratio: 1 / 1; /* También lo hacemos cuadrado */
+            aspect-ratio: 1 / 1;
         }
         
         .puzzle-piece, .puzzle-slot { box-sizing: border-box; }
@@ -149,7 +146,13 @@
 
         .puzzle-piece:active { cursor: grabbing; transform: scale(1.1); box-shadow: 0 0 20px var(--glow-color); z-index: 10; }
         .puzzle-slot { background-color: rgba(0,0,0,0.2); border: 1px solid rgba(0, 230, 230, 0.1); }
-        .dragging { opacity: 0.6; transform: scale(1.05); }
+        
+        /* ✨====== AQUÍ ESTÁ LA CORRECCIÓN ======✨ */
+        .dragging {
+            opacity: 0.6;
+            /* Se elimina 'transform: scale(1.05);' que causaba el problema */
+        }
+
         .placed { cursor: default; animation: placed-glow 0.5s ease; }
         @keyframes placed-glow { from { box-shadow: 0 0 30px var(--glow-color); } to { box-shadow: none; } }
         
