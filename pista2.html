@@ -19,7 +19,6 @@
             --glow-color: #00e6e6;
         }
 
-        /* --- CONFIGURACIÓN BASE RESPONSIVA --- */
         html {
             box-sizing: border-box;
             font-size: 16px;
@@ -38,7 +37,7 @@
             margin: 0;
             padding: 1rem;
             background-color: var(--color-fondo-oscuro);
-            overflow-x: hidden; /* Previene scroll horizontal */
+            overflow-x: hidden;
             color: var(--color-texto-claro);
             cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%2300e6e6' d='M10 16v-4H6V8h4V4h4v4h4v4h-4v4h-4z'/></svg>") 12 12, auto;
         }
@@ -47,9 +46,9 @@
         
         .card-container {
             perspective: 1500px;
-            width: 95%; /* Ocupa un poco más de espacio por el layout ancho */
-            max-width: 800px; /* Un máximo más grande para el puzzle */
-            min-width: 0; /* Regla clave para evitar desbordamiento */
+            width: 95%;
+            max-width: 800px;
+            min-width: 0;
         }
 
         .card { 
@@ -95,18 +94,17 @@
             margin-bottom: 0.2em;
         }
         
-        /* --- DISEÑO DEL ROMPECABEZAS --- */
         #puzzle-container {
             display: flex;
-            flex-wrap: wrap; /* Permite que los elementos se apilen */
+            flex-wrap: wrap;
             justify-content: center;
             gap: 25px;
             margin-top: 1.5em;
         }
 
         #puzzle-board, #piece-container {
-            flex-grow: 1; /* Permite que crezcan para ocupar el espacio */
-            flex-basis: 300px; /* Ancho base antes de crecer o encogerse */
+            flex-grow: 1;
+            flex-basis: 300px;
             max-width: 350px;
         }
 
@@ -119,7 +117,7 @@
             gap: 2px;
             background-color: rgba(0,0,0,0.3);
             position: relative;
-            aspect-ratio: 1 / 1; /* Mantiene el tablero cuadrado */
+            aspect-ratio: 1 / 1;
         }
 
         #piece-container {
@@ -192,7 +190,11 @@
         const puzzleScreen = document.getElementById('puzzle-screen');
         const successScreen = document.getElementById('success-content');
         const allAudio = document.querySelectorAll('audio');
-        const imageUrl = 'https://i.ibb.co/zHx7Dg9/viaje.png';
+        
+        // ✨====== ¡AQUÍ ESTABA EL ERROR! ======✨
+        // La URL correcta de la imagen.
+        const imageUrl = 'https://i.ibb.co/zHx7Dg9d/viaje.png'; 
+
         let audioUnlocked = false;
         function unlockAudio(){if(audioUnlocked)return;allAudio.forEach(audio=>{audio.volume=0.5;audio.play();audio.pause();audio.currentTime=0;});audioUnlocked=true;}
         document.body.addEventListener('click',unlockAudio,{once:true});document.body.addEventListener('touchstart',unlockAudio,{once:true});
@@ -212,9 +214,6 @@
             pieceContainer.innerHTML = '';
             solvedPieces = 0;
             const pieces = [];
-
-            // ✨ OPTIMIZACIÓN: JS ya no calcula el ancho. CSS lo controla.
-            // Leemos el tamaño actual del tablero que fue definido por el CSS.
             const currentBoardWidth = puzzleBoard.offsetWidth;
             const currentBoardHeight = puzzleBoard.offsetHeight;
 
@@ -233,7 +232,6 @@
                 const col = i % COLS;
                 const row = Math.floor(i / COLS);
                 piece.style.backgroundImage = `url(${image.src})`;
-                // Usamos el tamaño leído del DOM para escalar la imagen de fondo
                 piece.style.backgroundSize = `${currentBoardWidth}px ${currentBoardHeight}px`;
                 piece.style.backgroundPosition = `-${col * (currentBoardWidth/COLS)}px -${row * (currentBoardHeight/ROWS)}px`;
                 
