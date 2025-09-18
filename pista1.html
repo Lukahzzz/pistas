@@ -40,7 +40,7 @@
             overflow: hidden;
             -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
             color: var(--color-texto-claro);
-            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%2300e6e6' d='M10 16v-4H6V8h4V4h4v4h4v4h-4v4h-4z'/></svg>") 12 12, auto;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%2300e6e6' d='M10 16v-4H6V8h4V4h4v4h4v4h-4v4h-4z'/></svg>") 12 12, auto;
         }
 
         #particle-canvas {
@@ -50,7 +50,7 @@
         .card-container {
             perspective: 1500px;
             transform-style: preserve-3d;
-            width: 100%;
+            width: 90%; /* Ajustado para el efecto "zoom out" */
             max-width: 550px;
         }
 
@@ -71,10 +71,8 @@
             position: relative;
             overflow: hidden;
             transition: transform 0.1s ease-out, box-shadow 0.3s;
-            
-            /* --- ✨ NUEVAS REGLAS PARA CORREGIR EL DESBORDAMIENTO --- */
-            overflow-wrap: break-word; /* Permite que las palabras largas se rompan */
-            -webkit-hyphens: auto;     /* Activa la separación silábica automática (guiones) */
+            overflow-wrap: break-word;
+            -webkit-hyphens: auto;
             -ms-hyphens: auto;
             hyphens: auto;
         }
@@ -90,7 +88,6 @@
             color: white;
             font-size: clamp(2rem, 7vw, 2.8rem);
             margin: 0.4em 0;
-            /* --- ✨ AJUSTE EN ESPACIADO DE LETRAS --- */
             letter-spacing: clamp(1.5px, 0.5vw, 3px);
             text-shadow: 0 0 15px rgba(0,230,230,0.7);
         }
