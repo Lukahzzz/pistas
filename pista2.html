@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1200">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pista #2 - Aranzza</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,8 +41,7 @@
             border: 1px solid var(--color-borde-card); border-radius: 20px; padding: 2.5em; 
             box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 40px var(--glow-color); 
             text-align: center; 
-            max-width: 900px; /* Ancho ajustado para la vista de escritorio */
-            width: 100%;
+            max-width: 95vw; 
             animation: fadeIn 1s ease-out 0.5s forwards;
             opacity: 0; transform-style: preserve-3d;
             transform: translateY(20px); color: var(--color-texto-claro);
@@ -71,10 +70,7 @@
 
         #puzzle-board {
             border: 2px dashed var(--color-borde-card); border-radius: 10px;
-            display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); 
-            /* MODIFICACIÓN CLAVE: Se elimina el espacio entre las piezas */
-            gap: 0;
-            padding: 0;
+            display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 2px;
             background-color: rgba(0,0,0,0.3);
             position: relative;
         }
@@ -84,39 +80,35 @@
             border-image: linear-gradient(45deg, var(--color-primario), #3333ff, var(--glow-color)) 1;
             border-radius: 10px;
             background-color: rgba(0,0,0,0.4);
+            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.15' fill-rule='evenodd'%3E%3Cpath d='M9 0H6v1L8 3v2H6v1h3V0zm0 9H6v1l2-2v-2H6v1h3V9z'/%3E%3C/g%3E%3C/svg%3E");
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(4, 1fr);
+            justify-items: center;
             gap: 5px;
-            padding: 5px;
+            padding: 10px;
             box-sizing: border-box;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
             box-shadow: 0 0 15px rgba(0,230,230,0.3);
         }
 
-        .puzzle-piece, .puzzle-slot { 
-            box-sizing: border-box; 
-            width: 100%;
-            height: 100%;
-        }
+        .puzzle-piece, .puzzle-slot { box-sizing: border-box; }
 
         .puzzle-piece { 
             cursor: grab; 
             border: 1px solid rgba(255,255,255,0.7); 
-            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 0 8px rgba(0,0,0,0.5);
-            touch-action: none; /* Mejora la interacción táctil */
+            /* --- MODIFICACIÓN CLAVE --- */
+            /* La pieza ahora ocupa el 100% de su contenedor */
+            width: 100%;
+            height: 100%;
         }
 
-        .puzzle-piece:active { cursor: grabbing; }
+        .puzzle-piece:active { cursor: grabbing; transform: scale(1.1); box-shadow: 0 0 20px var(--glow-color); z-index: 10; }
         .puzzle-slot { background-color: rgba(0,0,0,0.2); border: 1px solid rgba(0, 230, 230, 0.1); }
         
-        .dragging { 
-            opacity: 0.5; 
-            transform: scale(1.1);
-            box-shadow: 0 0 20px var(--glow-color);
-            z-index: 1000;
-        }
-        
+        .dragging { opacity: 0.6; transform: scale(1.05); }
         .placed { cursor: default; animation: placed-glow 0.5s ease; }
         @keyframes placed-glow { from { box-shadow: 0 0 30px var(--glow-color); } to { box-shadow: none; } }
         
@@ -125,8 +117,16 @@
             color: var(--color-error); font-size: 1.1em; max-width: 80%;
         }
 
-        /* MODIFICACIÓN CLAVE: Se eliminó la media query para forzar siempre la vista de escritorio */
-
+        @media (max-width: 900px) {
+            .card { padding: 1.5em; width: 95vw; }
+            h1 { font-size: 1.8em; } p { font-size: 0.9em; }
+            #puzzle-container { flex-direction: column; align-items: center; }
+            #puzzle-board { width: 90vw !important; height: auto !important; max-width: 400px; aspect-ratio: 1; }
+            #piece-container { 
+                display: flex; flex-wrap: wrap; justify-content: center;
+                width: 90vw; max-width: 400px; height: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -170,9 +170,9 @@
         const allAudio = document.querySelectorAll('audio');
         const imageUrl = 'https://i.ibb.co/zHx7Dg9d/viaje.png';
         let audioUnlocked = false;
-        function unlockAudio(){if(audioUnlocked)return;allAudio.forEach(audio=>{audio.volume=0.5;audio.play();audio.pause();audio.currentTime=0;});audioUnlocked=true;}
+        function unlockAudio(){if(audioUnlocked)return;allAudio.forEach(audio=>{audio.volume=0.5;audio.play();audio.pause();audio.currentTime=0;});audioUnlocked=true;document.body.removeEventListener('click',unlockAudio);document.body.removeEventListener('touchstart',unlockAudio);}
         document.body.addEventListener('click',unlockAudio,{once:true});document.body.addEventListener('touchstart',unlockAudio,{once:true});
-        function playSound(soundId){try{const sound=document.getElementById(soundId);sound.currentTime=0;sound.cloneNode(true).play();}catch(e){}}
+        function playSound(soundId){try{const sound=document.getElementById(soundId);sound.cloneNode(true).play();}catch(e){}}
         const puzzleBoard = document.getElementById('puzzle-board');
         const pieceContainer = document.getElementById('piece-container');
         const ROWS = 4, COLS = 4;
@@ -189,22 +189,32 @@
             pieceContainer.innerHTML = '';
             solvedPieces = 0;
             const pieces = [];
-
-            // MODIFICACIÓN CLAVE: Se establece un tamaño fijo para ambos contenedores
-            const boardSize = 400; // Tamaño en píxeles
-            const pieceSize = boardSize / COLS;
-
-            puzzleBoard.style.width = `${boardSize}px`;
-            puzzleBoard.style.height = `${boardSize}px`;
-            pieceContainer.style.width = `${boardSize}px`;
-            pieceContainer.style.height = `${boardSize}px`;
-
+            const boardMaxWidth = 350;
+            let currentBoardWidth;
+            if (window.innerWidth > 900) {
+                const availableWidth = window.innerWidth * 0.9;
+                currentBoardWidth = Math.min(boardMaxWidth, availableWidth / 2 - 50);
+            } else {
+                currentBoardWidth = Math.min(400, window.innerWidth * 0.9);
+            }
+            const currentBoardHeight = currentBoardWidth / (image.width / image.height);
+            puzzleBoard.style.width = `${currentBoardWidth}px`;
+            puzzleBoard.style.height = `${currentBoardHeight}px`;
+            if (window.innerWidth > 900) {
+                pieceContainer.style.height = `${currentBoardHeight}px`;
+                pieceContainer.style.width = `${currentBoardWidth}px`;
+            } else {
+                pieceContainer.style.height = 'auto';
+                pieceContainer.style.width = '';
+            }
             for (let i = 0; i < ROWS * COLS; i++) {
                 const slot = document.createElement('div');
                 slot.classList.add('puzzle-slot');
                 slot.dataset.index = i;
                 puzzleBoard.appendChild(slot);
-                
+                slot.addEventListener('dragover', e => e.preventDefault());
+                slot.addEventListener('drop', onDropOnSlot);
+
                 const piece = document.createElement('div');
                 piece.classList.add('puzzle-piece');
                 piece.draggable = true;
@@ -212,59 +222,52 @@
                 const col = i % COLS;
                 const row = Math.floor(i / COLS);
                 piece.style.backgroundImage = `url(${image.src})`;
-                // Se ajusta el tamaño de la imagen de fondo para que coincida con el tablero
-                piece.style.backgroundSize = `${boardSize}px ${boardSize}px`;
-                piece.style.backgroundPosition = `-${col * pieceSize}px -${row * pieceSize}px`;
+                piece.style.backgroundSize = `${currentBoardWidth}px ${currentBoardHeight}px`;
+                piece.style.backgroundPosition = `-${col * (currentBoardWidth/COLS)}px -${row * (currentBoardHeight/ROWS)}px`;
                 
+                // --- MODIFICACIÓN CLAVE ---
+                // Se eliminan las líneas que fijan el tamaño de la pieza en JS.
+                // Ahora el CSS se encarga con width: 100% y height: 100%.
+
                 pieces.push(piece);
+                piece.addEventListener('dragstart', onDragStart);
+                piece.addEventListener('dragend', onDragEnd);
             }
-            
             pieces.sort(() => Math.random() - 0.5).forEach(p => pieceContainer.appendChild(p));
-            addDragAndTouchListeners();
+            pieceContainer.addEventListener('dragover', e => e.preventDefault());
+            pieceContainer.addEventListener('drop', onReturnPiece);
         }
-
-        function onDragStart(e) {
-            draggedPiece = this;
-            setTimeout(() => this.classList.add('dragging'), 0);
-        }
-
-        function onDragEnd() {
-            this.classList.remove('dragging');
-        }
-
-        function onDragOver(e) {
+        function onDragStart(e) { draggedPiece = e.target; setTimeout(() => e.target.classList.add('dragging'), 0); }
+        function onDragEnd(e) { e.target.classList.remove('dragging'); }
+        function onDropOnSlot(e) {
             e.preventDefault();
-        }
-
-        function onDrop() {
-            if (this.classList.contains('puzzle-slot') && !this.hasChildNodes()) {
-                handlePiecePlacement(this);
+            const slot = e.target.classList.contains('puzzle-slot') ? e.target : e.target.parentNode;
+            if (!slot || !slot.classList.contains('puzzle-slot')) return;
+            if (!slot.hasChildNodes()) {
+                if (draggedPiece.dataset.index === slot.dataset.index) {
+                    const wasInContainer = draggedPiece.parentNode.id === 'piece-container';
+                    slot.appendChild(draggedPiece);
+                    draggedPiece.classList.add('placed');
+                    playSound('audio-place-piece');
+                    if (wasInContainer) solvedPieces++;
+                    if (solvedPieces === ROWS * COLS) onPuzzleSolved();
+                } else {
+                    playSound('audio-error-puzzle');
+                }
             }
         }
-        
-        function onReturnPiece() {
-             if (draggedPiece && draggedPiece.parentNode.classList.contains('puzzle-slot')) {
-                if (draggedPiece.classList.contains('placed')) {
-                    solvedPieces--;
+        function onReturnPiece(e) {
+            e.preventDefault();
+            if (e.target.id === 'piece-container' && draggedPiece) {
+                if (draggedPiece.parentNode.classList.contains('puzzle-slot')) {
+                    if (draggedPiece.classList.contains('placed')) {
+                        solvedPieces--;
+                    }
+                    draggedPiece.classList.remove('placed');
                 }
-                draggedPiece.classList.remove('placed');
                 pieceContainer.appendChild(draggedPiece);
             }
         }
-
-        function handlePiecePlacement(targetSlot) {
-            if (draggedPiece.dataset.index === targetSlot.dataset.index) {
-                const wasInContainer = draggedPiece.parentNode.id === 'piece-container';
-                targetSlot.appendChild(draggedPiece);
-                draggedPiece.classList.add('placed');
-                playSound('audio-place-piece');
-                if (wasInContainer) solvedPieces++;
-                if (solvedPieces === ROWS * COLS) onPuzzleSolved();
-            } else {
-                playSound('audio-error-puzzle');
-            }
-        }
-        
         function onPuzzleSolved() {
             playSound('audio-success');
             puzzleBoard.style.borderColor = 'var(--color-secundario)';
@@ -273,111 +276,7 @@
                 successScreen.style.display = 'block';
             }, 500);
         }
-
-        // --- MODIFICACIÓN CLAVE: Lógica completa para eventos TÁCTILES ---
-        function addDragAndTouchListeners() {
-            const pieces = document.querySelectorAll('.puzzle-piece');
-            const slots = document.querySelectorAll('.puzzle-slot');
-
-            pieces.forEach(piece => {
-                piece.addEventListener('dragstart', onDragStart);
-                piece.addEventListener('dragend', onDragEnd);
-                piece.addEventListener('touchstart', onTouchStart, { passive: false });
-            });
-
-            slots.forEach(slot => {
-                slot.addEventListener('dragover', onDragOver);
-                slot.addEventListener('drop', onDrop);
-            });
-            
-            pieceContainer.addEventListener('dragover', onDragOver);
-            pieceContainer.addEventListener('drop', onReturnPiece);
-        }
-        
-        let touchStartX, touchStartY;
-        let originalParent;
-
-        function onTouchStart(e) {
-            e.preventDefault();
-            draggedPiece = this;
-            originalParent = this.parentNode;
-            
-            const touch = e.touches[0];
-            touchStartX = touch.clientX;
-            touchStartY = touch.clientY;
-
-            // Simular el efecto visual de arrastre
-            this.classList.add('dragging');
-            document.body.appendChild(this); // Mover al body para que esté por encima de todo
-            this.style.position = 'fixed';
-            this.style.left = `${touch.clientX - this.offsetWidth / 2}px`;
-            this.style.top = `${touch.clientY - this.offsetHeight / 2}px`;
-
-            document.addEventListener('touchmove', onTouchMove, { passive: false });
-            document.addEventListener('touchend', onTouchEnd, { passive: false });
-        }
-
-        function onTouchMove(e) {
-            e.preventDefault();
-            if (!draggedPiece) return;
-            const touch = e.touches[0];
-            draggedPiece.style.left = `${touch.clientX - draggedPiece.offsetWidth / 2}px`;
-            draggedPiece.style.top = `${touch.clientY - draggedPiece.offsetHeight / 2}px`;
-        }
-
-        function onTouchEnd(e) {
-            if (!draggedPiece) return;
-            
-            // Limpiar listeners
-            document.removeEventListener('touchmove', onTouchMove);
-            document.removeEventListener('touchend', onTouchEnd);
-            
-            const touch = e.changedTouches[0];
-            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-            
-            let placed = false;
-            
-            if (dropTarget) {
-                 // Si el objetivo es una pieza ya colocada, apuntar a su contenedor (el slot)
-                const targetSlot = dropTarget.classList.contains('puzzle-slot') 
-                    ? dropTarget 
-                    : dropTarget.parentNode;
-
-                if (targetSlot && targetSlot.classList.contains('puzzle-slot') && !targetSlot.hasChildNodes()) {
-                    handlePiecePlacement(targetSlot);
-                    placed = true;
-                }
-            }
-
-            // Si no se colocó en un slot válido, devolverlo a su contenedor original
-            if (!placed) {
-                if (originalParent.id === 'piece-container') {
-                     originalParent.appendChild(draggedPiece);
-                } else {
-                    // Si estaba en un slot, devolverlo al contenedor de piezas
-                    pieceContainer.appendChild(draggedPiece);
-                    if (draggedPiece.classList.contains('placed')) {
-                        solvedPieces--;
-                        draggedPiece.classList.remove('placed');
-                    }
-                }
-            }
-            
-            // Restaurar estilos
-            draggedPiece.style.position = '';
-            draggedPiece.style.left = '';
-            draggedPiece.style.top = '';
-            draggedPiece.classList.remove('dragging');
-            draggedPiece = null;
-        }
-
-        window.addEventListener('resize', () => { 
-            if (img.complete && img.naturalHeight !== 0) { 
-                createPuzzle(img); 
-            } 
-        });
-
+        window.addEventListener('resize', () => { if (img.complete && img.naturalHeight !== 0) { createPuzzle(img); } });
     </script>
 </body>
 </html>
-
