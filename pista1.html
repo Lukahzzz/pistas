@@ -19,81 +19,198 @@
             --glow-color: #00e6e6;
         }
 
+        /* --- CONFIGURACIÓN BASE Y DE ACCESIBILIDAD --- */
+        html {
+            box-sizing: border-box;
+            font-size: 16px; /* Establece una base predecible para las unidades rem */
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
         body { 
-            font-family: var(--fuente-cuerpo); display: flex; justify-content: center; align-items: center; 
-            min-height: 100vh; margin: 0; padding: 20px;
-            background-color: var(--color-fondo-oscuro); overflow: hidden; box-sizing: border-box;
+            font-family: var(--fuente-cuerpo);
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem; /* Usar rem para espaciado escalable */
+            background-color: var(--color-fondo-oscuro);
+            overflow: hidden;
             -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
             color: var(--color-texto-claro);
             cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%2300e6e6' d='M10 16v-4H6V8h4V4h4v4h4v4h-4v4h-4z'/></svg>") 12 12, auto;
         }
 
-        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        #particle-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+        }
         
-        .card-container { perspective: 1500px; transform-style: preserve-3d; }
+        /* --- TARJETA PRINCIPAL --- */
+        .card-container {
+            perspective: 1500px;
+            transform-style: preserve-3d;
+            width: 100%;
+            max-width: 550px; /* Mantiene el ancho máximo en pantallas grandes */
+        }
 
         .card { 
-            background: rgba(10, 10, 26, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--color-borde-card); border-radius: 20px; padding: 3em; 
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--color-borde-card);
+            border-radius: 20px;
+            /* Espaciado fluido que se adapta al tamaño de la pantalla */
+            padding: clamp(1.5rem, 5vw, 3rem); 
             box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 40px var(--glow-color); 
-            text-align: center; max-width: 550px; width: 100%;
+            text-align: center;
+            width: 100%;
             animation: fadeIn 1s ease-out 0.5s forwards;
-            opacity: 0; transform-style: preserve-3d;
-            transform: translateY(20px); color: var(--color-texto-claro);
-            position: relative; overflow: hidden;
+            opacity: 0;
+            transform-style: preserve-3d;
+            transform: translateY(20px);
+            color: var(--color-texto-claro);
+            position: relative;
+            overflow: hidden;
             transition: transform 0.1s ease-out, box-shadow 0.3s;
         }
         
-        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         #puzzle-content, #success-content { display: none; }
         
-        h1 { font-family: var(--fuente-titulo); color: white; font-size: 2.8em; margin: 0.4em 0; letter-spacing: 3px; text-shadow: 0 0 15px rgba(0,230,230,0.7); }
-        p { font-size: 1.15em; line-height: 1.8; color: var(--color-texto-claro); margin-bottom: 1.5em;}
-        h3 { font-size: 1.8em; color: var(--color-primario); margin-top: 1.5em; text-shadow: 0 0 8px rgba(0,230,230,0.4); }
-        .icon { font-size: 4em; color: var(--color-primario); text-shadow: 0 0 20px var(--color-primario); margin-bottom: 0.3em; }
+        /* --- TIPOGRAFÍA FLUIDA --- */
+        h1 {
+            font-family: var(--fuente-titulo);
+            color: white;
+            /* Tamaño de fuente que se ajusta suavemente con el ancho de la pantalla */
+            font-size: clamp(2rem, 7vw, 2.8rem);
+            margin: 0.4em 0;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(0,230,230,0.7);
+        }
 
-        .section-divider { width: 80%; height: 1px; background: linear-gradient(to right, transparent, var(--color-primario), transparent); margin: 2em auto; opacity: 0.5; }
+        p {
+            /* Tamaño de fuente fluido con un mínimo y máximo */
+            font-size: clamp(1rem, 2.5vw, 1.15rem);
+            line-height: 1.8;
+            color: var(--color-texto-claro);
+            margin-bottom: 1.5em;
+        }
 
-        .challenge-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 2em; }
+        h3 {
+            font-size: clamp(1.5rem, 4vw, 1.8rem);
+            color: var(--color-primario);
+            margin-top: 1.5em;
+            text-shadow: 0 0 8px rgba(0,230,230,0.4);
+        }
+
+        .icon {
+            font-size: clamp(3rem, 10vw, 4rem);
+            color: var(--color-primario);
+            text-shadow: 0 0 20px var(--color-primario);
+            margin-bottom: 0.3em;
+        }
+
+        .section-divider {
+            width: 80%; height: 1px;
+            background: linear-gradient(to right, transparent, var(--color-primario), transparent);
+            margin: 2em auto; opacity: 0.5;
+        }
+
+        /* --- BOTONES Y FORMULARIOS RESPONSIVOS --- */
+        .challenge-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2em;
+            flex-wrap: wrap; /* Permite que los botones se apilen en pantallas pequeñas */
+        }
+
+        .password-gate {
+            display: flex;
+            flex-direction: column; /* Apila el input y el botón por defecto */
+            align-items: center;
+            gap: 1rem;
+        }
+
         .challenge-buttons button, .puzzle-button { 
-            border: 2px solid var(--color-primario); cursor: pointer; transition: all 0.3s; position: relative;
-            color: var(--color-primario); background-color: transparent;
-            padding: 15px 35px;
-            font-size: 1.2em;
+            border: 2px solid var(--color-primario);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            color: var(--color-primario);
+            background-color: transparent;
+            padding: 0.8em 1.5em; /* Usar 'em' para que el padding escale con el texto */
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
             font-weight: bold;
             font-family: var(--fuente-cuerpo);
             box-shadow: 0 0 10px rgba(0, 230, 230, 0.3);
-            margin-top: 2.5em;
+            flex-grow: 1; /* Permite que los botones crezcan si hay espacio */
+            max-width: 200px; /* Evita que se estiren demasiado */
         }
-        .challenge-buttons button { margin-top: 0; }
+        
+        .puzzle-button {
+            margin-top: 0.5em;
+            width: 100%;
+            max-width: 300px; /* Ancho máximo para el botón de verificar */
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5em;
+        }
 
         .challenge-buttons button:hover, .puzzle-button:hover { 
-            color: var(--color-fondo-oscuro); background-color: var(--color-primario); box-shadow: 0 0 25px var(--glow-color); 
+            color: var(--color-fondo-oscuro);
+            background-color: var(--color-primario);
+            box-shadow: 0 0 25px var(--glow-color); 
             transform: translateY(-5px) scale(1.02); 
         }
-        #yes-button, .puzzle-button { background-color: var(--color-primario); color: var(--color-fondo-oscuro); }
+
+        #yes-button, .puzzle-button {
+            background-color: var(--color-primario);
+            color: var(--color-fondo-oscuro);
+        }
+
         #yes-button:hover, .puzzle-button:hover { background-color: white; }
         
         input { 
-            padding: 15px; width: 80%; border: 1px solid var(--color-primario); border-radius: 8px; 
-            margin-top: 10px; font-size: 1em; background-color: rgba(0,0,0,0.6); color: white; 
-            box-shadow: 0 0 8px rgba(0,230,230,0.4); font-family: var(--fuente-cuerpo);
+            padding: 15px;
+            width: 100%;
+            max-width: 300px; /* Coincide con el botón para alineación */
+            border: 1px solid var(--color-primario);
+            border-radius: 8px; 
+            font-size: 1rem;
+            background-color: rgba(0,0,0,0.6);
+            color: white; 
+            box-shadow: 0 0 8px rgba(0,230,230,0.4);
+            font-family: var(--fuente-cuerpo);
         }
-        input:focus { outline: none; border-color: white; box-shadow: 0 0 25px var(--color-primario); }
+
+        input:focus {
+            outline: none;
+            border-color: white;
+            box-shadow: 0 0 25px var(--color-primario);
+        }
         
-        #error-message { color: var(--color-error); font-weight: bold; margin-top: 15px; display: none; text-shadow: 0 0 8px rgba(255,92,92,0.5); font-size: 1.1em; }
-        @keyframes shake { from, to { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); } 20%, 40%, 60%, 80% { transform: translateX(10px); } }
+        #error-message {
+            color: var(--color-error); font-weight: bold; margin-top: 15px; display: none;
+            text-shadow: 0 0 8px rgba(255,92,92,0.5); font-size: 1.1em;
+        }
+
+        @keyframes shake {
+            from, to { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
         .shake { animation: shake 0.5s ease-in-out; }
 
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            .card { padding: 2em; }
-            h1 { font-size: 2em; }
-            p { font-size: 1em; }
-            .challenge-buttons button, .puzzle-button { font-size: 1em; padding: 12px 25px; margin-top: 2em;}
-            .challenge-buttons button { margin-top: 0; }
-        }
+        /* Ya no se necesita el media query porque el diseño es fluido por naturaleza,
+           pero se podría usar para cambios más drásticos si fuera necesario. */
+
     </style>
 </head>
 <body>
@@ -132,7 +249,7 @@
                 <span class="material-symbols-outlined icon" style="color:var(--color-secundario); text-shadow: 0 0 10px var(--color-secundario);">verified_user</span>
                 <h1>Acceso Concedido</h1>
                 <p>Tu mente es capaz de procesar el desafío. Enhorabuena, Agente.</p>
-                <p style="font-weight:bold; font-size:1.2em; color: var(--color-primario); text-shadow: 0 0 10px var(--color-primario);">Tu primera coordenada te espera en el "Archivo Central" (Biblioteca). Procede con cautela.</p>
+                <p style="font-weight:bold; font-size:clamp(1.1rem, 3vw, 1.2rem); color: var(--color-primario); text-shadow: 0 0 10px var(--color-primario);">Tu primera coordenada te espera en el "Archivo Central" (Biblioteca). Procede con cautela.</p>
             </div>
         </div>
     </div>
