@@ -137,6 +137,10 @@
         const ROWS = 4, COLS = 4;
         let draggedPiece = null;
         let solvedPieces = 0;
+        
+        // FIX #1: Hacer la variable 'pieceSize' accesible globalmente
+        let pieceSize;
+
         const img = new Image();
         img.crossOrigin = "Anonymous";
         img.onload = () => createPuzzle(img);
@@ -149,7 +153,7 @@
             solvedPieces = 0;
             const pieces = [];
             const boardSize = 320;
-            const pieceSize = boardSize / COLS;
+            pieceSize = boardSize / COLS; // Asignar valor a la variable global
 
             puzzleBoard.style.width = `${boardSize}px`;
             puzzleBoard.style.height = `${boardSize}px`;
@@ -179,26 +183,22 @@
             addDragAndTouchListeners();
         }
 
-        function onDragStart(e) {
+        function onDragStart(e) { /* ... sin cambios ... */
             draggedPiece = this;
             setTimeout(() => this.classList.add('dragging'), 0);
         }
-
-        function onDragEnd() {
+        function onDragEnd() { /* ... sin cambios ... */
             this.classList.remove('dragging');
         }
-
-        function onDragOver(e) {
+        function onDragOver(e) { /* ... sin cambios ... */
             e.preventDefault();
         }
-
-        function onDrop() {
+        function onDrop() { /* ... sin cambios ... */
             if (this.classList.contains('puzzle-slot') && !this.hasChildNodes()) {
                 handlePiecePlacement(this);
             }
         }
-        
-        function onReturnPiece() {
+        function onReturnPiece() { /* ... sin cambios ... */
              if (draggedPiece && draggedPiece.parentNode.classList.contains('puzzle-slot')) {
                 if (draggedPiece.classList.contains('placed')) {
                     solvedPieces--;
@@ -207,8 +207,7 @@
                 pieceContainer.appendChild(draggedPiece);
             }
         }
-
-        function handlePiecePlacement(targetSlot) {
+        function handlePiecePlacement(targetSlot) { /* ... sin cambios ... */
             if (draggedPiece.dataset.index === targetSlot.dataset.index) {
                 const wasInContainer = draggedPiece.parentNode.id === 'piece-container';
                 targetSlot.appendChild(draggedPiece);
@@ -220,8 +219,7 @@
                 playSound('audio-error-puzzle');
             }
         }
-        
-        function onPuzzleSolved() {
+        function onPuzzleSolved() { /* ... sin cambios ... */
             playSound('audio-success');
             puzzleBoard.style.borderColor = 'var(--color-secundario)';
             setTimeout(() => {
@@ -233,18 +231,15 @@
         function addDragAndTouchListeners() {
             const pieces = document.querySelectorAll('.puzzle-piece');
             const slots = document.querySelectorAll('.puzzle-slot');
-
             pieces.forEach(piece => {
                 piece.addEventListener('dragstart', onDragStart);
                 piece.addEventListener('dragend', onDragEnd);
                 piece.addEventListener('touchstart', onTouchStart, { passive: false });
             });
-
             slots.forEach(slot => {
                 slot.addEventListener('dragover', onDragOver);
                 slot.addEventListener('drop', onDrop);
             });
-            
             pieceContainer.addEventListener('dragover', onDragOver);
             pieceContainer.addEventListener('drop', onReturnPiece);
         }
@@ -256,17 +251,16 @@
             draggedPiece = this;
             originalParent = this.parentNode;
             
-            // --- CORRECCIÓN CLAVE: Recordar el tamaño de la pieza ---
-            const rect = this.getBoundingClientRect();
-            this.style.width = `${rect.width}px`;
-            this.style.height = `${rect.height}px`;
+            // FIX #1: Usar el tamaño precalculado para que la pieza no se expanda
+            this.style.width = `${pieceSize}px`;
+            this.style.height = `${pieceSize}px`;
 
             document.body.appendChild(this);
             this.classList.add('dragging');
             this.style.position = 'fixed';
             const touch = e.touches[0];
-            this.style.left = `${touch.clientX - rect.width / 2}px`;
-            this.style.top = `${touch.clientY - rect.height / 2}px`;
+            this.style.left = `${touch.clientX - pieceSize / 2}px`;
+            this.style.top = `${touch.clientY - pieceSize / 2}px`;
 
             document.addEventListener('touchmove', onTouchMove, { passive: false });
             document.addEventListener('touchend', onTouchEnd, { passive: false });
@@ -276,8 +270,8 @@
             e.preventDefault();
             if (!draggedPiece) return;
             const touch = e.touches[0];
-            draggedPiece.style.left = `${touch.clientX - draggedPiece.offsetWidth / 2}px`;
-            draggedPiece.style.top = `${touch.clientY - draggedPiece.offsetHeight / 2}px`;
+            draggedPiece.style.left = `${touch.clientX - pieceSize / 2}px`;
+            draggedPiece.style.top = `${touch.clientY - pieceSize / 2}px`;
         }
 
         function onTouchEnd(e) {
@@ -286,7 +280,12 @@
             document.removeEventListener('touchend', onTouchEnd);
             
             const touch = e.changedTouches[0];
+            
+            // FIX #2: Ocultar la pieza momentáneamente para detectar lo que hay debajo
+            draggedPiece.style.display = 'none';
             const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            draggedPiece.style.display = '';
+
             let placed = false;
             
             if (dropTarget) {
@@ -309,7 +308,6 @@
                 }
             }
             
-            // --- CORRECCIÓN CLAVE: Limpiar los estilos para que la pieza vuelva a su tamaño normal ---
             draggedPiece.style.width = '';
             draggedPiece.style.height = '';
             draggedPiece.style.position = '';
