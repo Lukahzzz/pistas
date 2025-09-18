@@ -36,7 +36,6 @@
             border: 1px solid var(--color-borde-card); border-radius: 20px; padding: 2.5em; 
             box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 40px var(--glow-color); 
             text-align: center; 
-            /* AJUSTE DE TAMAÑO: Se reduce el ancho máximo para que coincida con la captura */
             max-width: 800px; 
             width: 100%;
             animation: fadeIn 1s ease-out 0.5s forwards;
@@ -149,9 +148,7 @@
             pieceContainer.innerHTML = '';
             solvedPieces = 0;
             const pieces = [];
-
-            // AJUSTE DE TAMAÑO: Se reduce el tamaño del tablero para que coincida con la captura
-            const boardSize = 320; // Tamaño en píxeles
+            const boardSize = 320;
             const pieceSize = boardSize / COLS;
 
             puzzleBoard.style.width = `${boardSize}px`;
@@ -259,12 +256,17 @@
             draggedPiece = this;
             originalParent = this.parentNode;
             
-            this.classList.add('dragging');
+            // --- CORRECCIÓN CLAVE: Recordar el tamaño de la pieza ---
+            const rect = this.getBoundingClientRect();
+            this.style.width = `${rect.width}px`;
+            this.style.height = `${rect.height}px`;
+
             document.body.appendChild(this);
+            this.classList.add('dragging');
             this.style.position = 'fixed';
             const touch = e.touches[0];
-            this.style.left = `${touch.clientX - this.offsetWidth / 2}px`;
-            this.style.top = `${touch.clientY - this.offsetHeight / 2}px`;
+            this.style.left = `${touch.clientX - rect.width / 2}px`;
+            this.style.top = `${touch.clientY - rect.height / 2}px`;
 
             document.addEventListener('touchmove', onTouchMove, { passive: false });
             document.addEventListener('touchend', onTouchEnd, { passive: false });
@@ -307,6 +309,9 @@
                 }
             }
             
+            // --- CORRECCIÓN CLAVE: Limpiar los estilos para que la pieza vuelva a su tamaño normal ---
+            draggedPiece.style.width = '';
+            draggedPiece.style.height = '';
             draggedPiece.style.position = '';
             draggedPiece.style.left = '';
             draggedPiece.style.top = '';
