@@ -19,10 +19,9 @@
             --glow-color: #00e6e6;
         }
 
-        /* --- CONFIGURACIÓN BASE Y DE ACCESIBILIDAD --- */
         html {
             box-sizing: border-box;
-            font-size: 16px; /* Establece una base predecible para las unidades rem */
+            font-size: 16px; 
         }
 
         *, *:before, *:after {
@@ -36,7 +35,7 @@
             align-items: center; 
             min-height: 100vh;
             margin: 0;
-            padding: 1rem; /* Usar rem para espaciado escalable */
+            padding: 1rem;
             background-color: var(--color-fondo-oscuro);
             overflow: hidden;
             -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
@@ -48,12 +47,11 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
         }
         
-        /* --- TARJETA PRINCIPAL --- */
         .card-container {
             perspective: 1500px;
             transform-style: preserve-3d;
             width: 100%;
-            max-width: 550px; /* Mantiene el ancho máximo en pantallas grandes */
+            max-width: 550px;
         }
 
         .card { 
@@ -61,7 +59,6 @@
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--color-borde-card);
             border-radius: 20px;
-            /* Espaciado fluido que se adapta al tamaño de la pantalla */
             padding: clamp(1.5rem, 5vw, 3rem); 
             box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 40px var(--glow-color); 
             text-align: center;
@@ -74,6 +71,12 @@
             position: relative;
             overflow: hidden;
             transition: transform 0.1s ease-out, box-shadow 0.3s;
+            
+            /* --- ✨ NUEVAS REGLAS PARA CORREGIR EL DESBORDAMIENTO --- */
+            overflow-wrap: break-word; /* Permite que las palabras largas se rompan */
+            -webkit-hyphens: auto;     /* Activa la separación silábica automática (guiones) */
+            -ms-hyphens: auto;
+            hyphens: auto;
         }
         
         @keyframes fadeIn {
@@ -82,19 +85,17 @@
 
         #puzzle-content, #success-content { display: none; }
         
-        /* --- TIPOGRAFÍA FLUIDA --- */
         h1 {
             font-family: var(--fuente-titulo);
             color: white;
-            /* Tamaño de fuente que se ajusta suavemente con el ancho de la pantalla */
             font-size: clamp(2rem, 7vw, 2.8rem);
             margin: 0.4em 0;
-            letter-spacing: 3px;
+            /* --- ✨ AJUSTE EN ESPACIADO DE LETRAS --- */
+            letter-spacing: clamp(1.5px, 0.5vw, 3px);
             text-shadow: 0 0 15px rgba(0,230,230,0.7);
         }
 
         p {
-            /* Tamaño de fuente fluido con un mínimo y máximo */
             font-size: clamp(1rem, 2.5vw, 1.15rem);
             line-height: 1.8;
             color: var(--color-texto-claro);
@@ -121,18 +122,17 @@
             margin: 2em auto; opacity: 0.5;
         }
 
-        /* --- BOTONES Y FORMULARIOS RESPONSIVOS --- */
         .challenge-buttons {
             display: flex;
             justify-content: center;
             gap: 1rem;
             margin-top: 2em;
-            flex-wrap: wrap; /* Permite que los botones se apilen en pantallas pequeñas */
+            flex-wrap: wrap; 
         }
 
         .password-gate {
             display: flex;
-            flex-direction: column; /* Apila el input y el botón por defecto */
+            flex-direction: column; 
             align-items: center;
             gap: 1rem;
         }
@@ -144,19 +144,19 @@
             position: relative;
             color: var(--color-primario);
             background-color: transparent;
-            padding: 0.8em 1.5em; /* Usar 'em' para que el padding escale con el texto */
+            padding: 0.8em 1.5em; 
             font-size: clamp(1rem, 2.5vw, 1.2rem);
             font-weight: bold;
             font-family: var(--fuente-cuerpo);
             box-shadow: 0 0 10px rgba(0, 230, 230, 0.3);
-            flex-grow: 1; /* Permite que los botones crezcan si hay espacio */
-            max-width: 200px; /* Evita que se estiren demasiado */
+            flex-grow: 1; 
+            max-width: 200px;
         }
         
         .puzzle-button {
             margin-top: 0.5em;
             width: 100%;
-            max-width: 300px; /* Ancho máximo para el botón de verificar */
+            max-width: 300px; 
             display: inline-flex;
             justify-content: center;
             align-items: center;
@@ -180,7 +180,7 @@
         input { 
             padding: 15px;
             width: 100%;
-            max-width: 300px; /* Coincide con el botón para alineación */
+            max-width: 300px; 
             border: 1px solid var(--color-primario);
             border-radius: 8px; 
             font-size: 1rem;
@@ -207,9 +207,6 @@
             20%, 40%, 60%, 80% { transform: translateX(10px); }
         }
         .shake { animation: shake 0.5s ease-in-out; }
-
-        /* Ya no se necesita el media query porque el diseño es fluido por naturaleza,
-           pero se podría usar para cambios más drásticos si fuera necesario. */
 
     </style>
 </head>
