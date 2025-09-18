@@ -39,7 +39,7 @@
             background-color: var(--color-fondo-oscuro);
             overflow-x: hidden;
             color: var(--color-texto-claro);
-            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%2300e6e6' d='M10 16v-4H6V8h4V4h4v4h4v4h-4v4h-4z'/></svg>") 12 12, auto;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24' viewBox='0 0 24 24'><path fill='%2300e6e6' d='M10 16v-4H6V8h4V4h4v4h4v4h-4v4h-4z'/></svg>") 12 12, auto;
         }
 
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
@@ -74,38 +74,40 @@
         h1 {
             font-family: var(--fuente-titulo);
             color: white;
-            font-size: clamp(1.6rem, 5vw, 2.2rem);
+            font-size: clamp(1.5rem, 4.5vw, 2.2rem);
             margin: 0.4em 0;
             letter-spacing: clamp(1px, 0.5vw, 2px);
             text-shadow: 0 0 15px rgba(0,230,230,0.7);
         }
 
         p {
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            font-size: clamp(0.8rem, 2.2vw, 1rem);
             line-height: 1.7;
             color: var(--color-texto-claro);
             margin-bottom: 1.5em;
         }
 
         .icon {
-            font-size: clamp(2.8rem, 8vw, 3.5rem);
+            font-size: clamp(2.5rem, 7vw, 3.5rem);
             color: var(--color-primario);
             text-shadow: 0 0 20px var(--color-primario);
             margin-bottom: 0.2em;
         }
         
+        /* --- ✨ CAMBIOS CLAVE PARA EL DISEÑO "ESCRITORIO" --- */
         #puzzle-container {
             display: flex;
-            flex-wrap: wrap;
+            /* Se elimina 'flex-wrap' para forzar la vista horizontal */
             justify-content: center;
-            gap: 25px;
+            align-items: center; /* Centra verticalmente los elementos */
+            gap: 1.5rem; /* Un espacio adaptable */
             margin-top: 1.5em;
         }
 
         #puzzle-board, #piece-container {
-            flex-grow: 1;
-            flex-basis: 300px;
-            max-width: 350px;
+            flex: 1; /* Hacemos que ambos elementos compartan el espacio por igual */
+            min-width: 0; /* Les permite encogerse sin límite */
+            /* Se eliminan los anchos fijos para que sean flexibles */
         }
 
         #puzzle-board {
@@ -131,6 +133,7 @@
             gap: 5px;
             padding: 10px;
             box-shadow: 0 0 15px rgba(0,230,230,0.3);
+            aspect-ratio: 1 / 1; /* También lo hacemos cuadrado */
         }
         
         .puzzle-piece, .puzzle-slot { box-sizing: border-box; }
@@ -186,15 +189,11 @@
         // LÓGICA DE PARTÍCULAS (Sin cambios)
         const canvas = document.getElementById('particle-canvas'); const ctx = canvas.getContext('2d'); canvas.width = window.innerWidth; canvas.height = window.innerHeight; let particlesArray = []; class Particle { constructor(x,y,dX,dY,s){this.x=x;this.y=y;this.directionX=dX;this.directionY=dY;this.size=s;} draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2,false);ctx.fillStyle='rgba(0,230,230,0.5)';ctx.fill();} update(){if(this.x>canvas.width||this.x<0){this.directionX=-this.directionX;} if(this.y>canvas.height||this.y<0){this.directionY=-this.directionY;} this.x+=this.directionX;this.y+=this.directionY;this.draw();}} function initParticles(){particlesArray=[];let n=(canvas.height*canvas.width)/9000;for(let i=0;i<n;i++){let s=(Math.random()*2)+1,x=Math.random()*(innerWidth-s*2)+s*2,y=Math.random()*(innerHeight-s*2)+s*2,dX=Math.random()*.4-.2,dY=Math.random()*.4-.2;particlesArray.push(new Particle(x,y,dX,dY,s));}} function connectParticles(){let o=1;for(let a=0;a<particlesArray.length;a++){for(let b=a;b<particlesArray.length;b++){let d=((particlesArray[a].x-particlesArray[b].x)*(particlesArray[a].x-particlesArray[b].x))+((particlesArray[a].y-particlesArray[b].y)*(particlesArray[a].y-particlesArray[b].y));if(d<(canvas.width/7)*(canvas.height/7)){o=1-(d/20000);ctx.strokeStyle=`rgba(0,230,230,${o})`;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(particlesArray[a].x,particlesArray[a].y);ctx.lineTo(particlesArray[b].x,particlesArray[b].y);ctx.stroke();}}}} function animateParticles(){requestAnimationFrame(animateParticles);ctx.clearRect(0,0,innerWidth,innerHeight);for(let i=0;i<particlesArray.length;i++){particlesArray[i].update();}connectParticles();} initParticles();animateParticles();window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;initParticles();});
         
-        // --- LÓGICA DEL ROMPECABEZAS ---
+        // LÓGICA DEL ROMPECABEZAS
         const puzzleScreen = document.getElementById('puzzle-screen');
         const successScreen = document.getElementById('success-content');
         const allAudio = document.querySelectorAll('audio');
-        
-        // ✨====== ¡AQUÍ ESTABA EL ERROR! ======✨
-        // La URL correcta de la imagen.
         const imageUrl = 'https://i.ibb.co/zHx7Dg9d/viaje.png'; 
-
         let audioUnlocked = false;
         function unlockAudio(){if(audioUnlocked)return;allAudio.forEach(audio=>{audio.volume=0.5;audio.play();audio.pause();audio.currentTime=0;});audioUnlocked=true;}
         document.body.addEventListener('click',unlockAudio,{once:true});document.body.addEventListener('touchstart',unlockAudio,{once:true});
