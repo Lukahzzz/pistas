@@ -47,7 +47,7 @@
             animation: fadeIn 1s ease-out 0.5s forwards;
             opacity: 0; transform: translateY(20px);
             overflow-wrap: break-word; hyphens: auto;
-            position: relative; /* Ancestro para posicionar piezas seleccionadas */
+            position: relative;
         }
         
         @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
@@ -78,38 +78,40 @@
         #puzzle-board, #piece-container {
             width: 48%;
             min-width: 0;
+            aspect-ratio: 1 / 1;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
         }
         
-        /* ✨====== CORRECCIÓN PARA ENCAJE PERFECTO ======✨ */
+        /* ✨====== CORRECCIONES DE SIMETRÍA Y ENCAJE ======✨ */
         #puzzle-board {
-            border: 2px dashed var(--color-borde-card); border-radius: 10px;
-            display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr);
-            gap: 0; /* Se elimina el 'gap' para que las piezas encajen sin espacios */
+            border: 2px dashed var(--color-borde-card);
             background-color: rgba(0,0,0,0.3);
-            position: relative; aspect-ratio: 1 / 1;
+            gap: 0; /* Sin espacio entre slots */
+            padding: 0; /* Sin relleno para cálculo exacto */
         }
 
         #piece-container {
             border: 2px solid;
             border-image: linear-gradient(45deg, var(--color-primario), #3333ff, var(--glow-color)) 1;
-            border-radius: 10px; background-color: rgba(0,0,0,0.4);
-            display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr);
-            gap: 5px; padding: 10px;
+            background-color: rgba(0,0,0,0.4);
+            gap: 5px;
+            padding: 5px; /* Relleno reducido */
             box-shadow: 0 0 15px rgba(0,230,230,0.3);
-            aspect-ratio: 1 / 1;
         }
         
         .puzzle-piece, .puzzle-slot { box-sizing: border-box; }
         .puzzle-slot { 
-            border: 1px solid rgba(0, 230, 230, 0.1); /* Borde para ver la cuadrícula */
+            border: 1px solid rgba(0, 230, 230, 0.1);
         }
         
         .puzzle-piece { 
             border: 1px solid rgba(255,255,255,0.7); 
             box-shadow: 0 0 8px rgba(0,0,0,0.5);
             width: 100%; height: 100%;
-            touch-action: none;
-            cursor: grab;
+            touch-action: none; cursor: grab;
         }
         
         .selected {
@@ -158,7 +160,7 @@
         // LÓGICA DE PARTÍCULAS (Sin cambios)
         const canvas = document.getElementById('particle-canvas'); const ctx = canvas.getContext('2d'); canvas.width = window.innerWidth; canvas.height = window.innerHeight; let particlesArray = []; class Particle { constructor(x,y,dX,dY,s){this.x=x;this.y=y;this.directionX=dX;this.directionY=dY;this.size=s;} draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2,false);ctx.fillStyle='rgba(0,230,230,0.5)';ctx.fill();} update(){if(this.x>canvas.width||this.x<0){this.directionX=-this.directionX;} if(this.y>canvas.height||this.y<0){this.directionY=-this.directionY;} this.x+=this.directionX;this.y+=this.directionY;this.draw();}} function initParticles(){particlesArray=[];let n=(canvas.height*canvas.width)/9000;for(let i=0;i<n;i++){let s=(Math.random()*2)+1,x=Math.random()*(innerWidth-s*2)+s*2,y=Math.random()*(innerHeight-s*2)+s*2,dX=Math.random()*.4-.2,dY=Math.random()*.4-.2;particlesArray.push(new Particle(x,y,dX,dY,s));}} function connectParticles(){let o=1;for(let a=0;a<particlesArray.length;a++){for(let b=a;b<particlesArray.length;b++){let d=((particlesArray[a].x-particlesArray[b].x)*(particlesArray[a].x-particlesArray[b].x))+((particlesArray[a].y-particlesArray[b].y)*(particlesArray[a].y-particlesArray[b].y));if(d<(canvas.width/7)*(canvas.height/7)){o=1-(d/20000);ctx.strokeStyle=`rgba(0,230,230,${o})`;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(particlesArray[a].x,particlesArray[a].y);ctx.lineTo(particlesArray[b].x,particlesArray[b].y);ctx.stroke();}}}} function animateParticles(){requestAnimationFrame(animateParticles);ctx.clearRect(0,0,innerWidth,innerHeight);for(let i=0;i<particlesArray.length;i++){particlesArray[i].update();}connectParticles();} initParticles();animateParticles();window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;initParticles();});
         
-        // --- ✨====== LÓGICA DE ROMPECABEZAS CORREGIDA Y FUNCIONAL ======✨ ---
+        // --- LÓGICA DEL ROMPECABEZAS ---
         const puzzleScreen = document.getElementById('puzzle-screen');
         const successScreen = document.getElementById('success-content');
         const imageUrl = 'https://i.ibb.co/zHx7Dg9d/viaje.png'; 
@@ -183,8 +185,10 @@
             pieceContainer.innerHTML = '';
             solvedPieces = 0;
             const pieces = [];
-            const boardWidth = puzzleBoard.offsetWidth;
-            const boardHeight = puzzleBoard.offsetHeight;
+            
+            // ✨ CORRECCIÓN CLAVE: Usamos clientWidth para obtener el tamaño INTERNO del tablero (sin bordes)
+            const boardWidth = puzzleBoard.clientWidth;
+            const boardHeight = puzzleBoard.clientHeight;
 
             for (let i = 0; i < ROWS * COLS; i++) {
                 const slot = document.createElement('div');
@@ -218,11 +222,9 @@
             const touch = e.touches ? e.touches[0] : e;
             const pieceRect = selectedPiece.getBoundingClientRect();
             
-            // Calcular el offset del puntero DENTRO de la pieza
             offsetX = touch.clientX - pieceRect.left;
             offsetY = touch.clientY - pieceRect.top;
-
-            // Mover pieza a la posición inicial del puntero para evitar el "salto"
+            
             movePiece(touch.clientX, touch.clientY);
 
             document.addEventListener('mousemove', onPieceMove);
@@ -239,7 +241,6 @@
         }
 
         function movePiece(x, y) {
-            // ✨ CORRECCIÓN CLAVE: Calcular la posición relativa a la tarjeta
             const cardRect = card.getBoundingClientRect();
             selectedPiece.style.left = `${x - offsetX - cardRect.left}px`;
             selectedPiece.style.top = `${y - offsetY - cardRect.top}px`;
@@ -262,14 +263,12 @@
                 if (e.type !== "touchend" && e.type !== "mouseup") playSound('audio-error-puzzle');
             }
             
-            // Limpiar estilos y estado
             selectedPiece.classList.remove('selected');
             selectedPiece.style.position = '';
             selectedPiece.style.left = '';
             selectedPiece.style.top = '';
             selectedPiece = null;
 
-            // Limpiar listeners
             document.removeEventListener('mousemove', onPieceMove);
             document.removeEventListener('touchmove', onPieceMove);
             document.removeEventListener('mouseup', onPieceDrop);
