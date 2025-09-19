@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestra Leyenda - Feliz Mesario</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>">
+    
+    <style>
+        :root {
+            --color-primario: #FFD700; /* Oro */
+            --color-secundario: #a7c5eb; /* Azul cielo pálido */
+            --color-exito: #90ee90; /* Verde claro mágico */
+            --color-fondo-oscuro: #1a1a2e; /* Azul noche profundo */
+            --color-texto-claro: #e0e0e0;
+            --color-borde-card: rgba(255, 215, 0, 0.4);
+            --fuente-titulo: 'Cinzel Decorative', cursive;
+            --fuente-cuerpo: 'EB Garamond', serif;
+            --glow-color: #FFD700;
+        }
+
+        body {
+            font-family: var(--fuente-cuerpo);
+            background-color: var(--color-fondo-oscuro);
+            color: var(--color-texto-claro);
+            margin: 0;
+            padding: 40px 20px;
+            overflow-x: hidden;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%23FFD700' d='M12 0l1.41 5.59L19 7l-5.59 1.41L12 14l-1.41-5.59L5 7l5.59-1.41z'/></svg>") 12 12, auto;
+        }
+
+        .hidden { display: none !important; }
+        
+        #particle-canvas, #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        #confetti-canvas { z-index: 100; }
+
+        .main-container { max-width: 800px; margin: 0 auto; position: relative; z-index: 1; perspective: 2000px; }
+        .interactive-card { background: rgba(26, 26, 46, 0.7); backdrop-filter: blur(10px); border: 1px solid var(--color-borde-card); border-radius: 20px; margin-top: 50px; transition: transform 0.1s ease-out; transform-style: preserve-3d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        h1, h2, h3 { font-family: var(--fuente-titulo); color: white; text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color); letter-spacing: 2px; }
+        p { font-size: 1.2em; line-height: 1.8; font-style: italic; }
+
+        #intro-section { display: flex; justify-content: center; align-items: center; min-height: 70vh; text-align: left; }
+        #terminal { font-family: var(--fuente-cuerpo); font-size: 1.5em; color: var(--color-secundario); text-shadow: 0 0 8px var(--color-secundario); font-style: italic; }
+        #terminal .terminal-line { margin: 0.5em 0; }
+        .cursor { display: inline-block; background-color: var(--color-secundario); margin-left: 5px; width: 4px; animation: blink 1s infinite; }
+        
+        #storybook-section { padding: 2em; text-align: center; }
+        .book-container {
+            position: relative;
+            min-height: 650px;
+            perspective: 2500px;
+        }
+        .book-chapter {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 2em;
+            box-sizing: border-box;
+            background-image: linear-gradient(rgba(26,26,46,0.85), rgba(26,26,46,0.85)), url('data:image/svg+xml,%3Csvg width="52" height="26" viewBox="0 0 52 26" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffd700" fill-opacity="0.04"%3E%3Cpath d="M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+            border: 1px solid var(--color-borde-card);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: justify;
+            transform-style: preserve-3d;
+            transform-origin: left center;
+            transition: transform 1.2s ease-in-out, opacity 0.6s ease-in-out;
+            backface-visibility: hidden;
+            opacity: 0;
+            overflow-y: auto;
+        }
+        .book-chapter.visible {
+            opacity: 1;
+        }
+        .book-chapter.flipped {
+            transform: rotateY(-180deg);
+            opacity: 0;
+        }
+        .drop-cap { font-family: var(--fuente-titulo); font-size: 4em; float: left; line-height: 1; margin: 0.1em 0.1em 0 0; color: var(--color-primario); text-shadow: 0 0 8px var(--glow-color); }
+        #storybook-nav { display: flex; justify-content: space-between; margin-top: 1em; }
+        .page-nav-btn { font-size: 1em; padding: 10px 20px; }
+
+
+        .fade-in { animation: fadeIn 1s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-out { animation: fadeOut 0.5s ease-out forwards; }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        #countdown-container { font-family: var(--fuente-titulo); color: var(--color-secundario); text-shadow: 0 0 10px var(--color-secundario); font-size: 1.5em; letter-spacing: 3px; margin: 1em 0 2em 0; border: 1px solid var(--color-borde-card); padding: 15px; border-radius: 10px; background: rgba(255, 215, 0, 0.05); }
+        .ornament { width: 100%; height: 50px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20'%3E%3Cpath d='M0 10 C 40 20, 60 0, 100 10 S 160 0, 200 10' fill='none' stroke='%23FFD700' stroke-width='1.5' stroke-opacity='0.6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; margin: 1em auto; }
+        .ornament.reversed { transform: rotate(180deg); }
+        .btn { border: 2px solid var(--color-primario); background-color: transparent; color: var(--color-primario); padding: 15px 30px; font-size: 1.2em; font-family: var(--fuente-titulo); letter-spacing: 1px; cursor: pointer; transition: all 0.3s; margin-top: 40px; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3), inset 0 0 10px rgba(255, 215, 0, 0.2); text-shadow: 0 0 5px var(--glow-color); position: relative; }
+        .btn:hover { background-color: var(--color-primario); color: var(--color-fondo-oscuro); box-shadow: 0 0 25px var(--glow-color), inset 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05) translateY(-3px); text-shadow: none; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 15px var(--glow-color); } 50% { box-shadow: 0 0 30px var(--glow-color); } 100% { box-shadow: 0 0 15px var(--glow-color); } }
+        #timeline-section .intro { margin-bottom: 50px; text-align: center; }
+        .timeline { position: relative; padding: 20px 0; }
+        .timeline::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 100%; background: linear-gradient(to bottom, transparent, var(--color-primario), transparent); box-shadow: 0 0 10px var(--glow-color); }
+        .timeline-item { padding: 20px 40px; position: relative; width: 50%; box-sizing: border-box; opacity: 0; transform: translateY(50px) scale(0.95); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .timeline-item.visible { opacity: 1; transform: translateY(0) scale(1); }
+        .timeline-item:nth-child(odd) { left: 0; text-align: right; padding-right: 70px; }
+        .timeline-item:nth-child(even) { left: 50%; text-align: left; padding-left: 70px; }
+        .timeline-dot { content: ''; position: absolute; top: 35px; width: 15px; height: 15px; background: var(--color-primario); border-radius: 50%; border: 3px solid var(--color-fondo-oscuro); box-shadow: 0 0 15px var(--glow-color); transition: transform 0.3s; }
+        .timeline-item.visible .timeline-dot { transform: scale(1.2); }
+        .timeline-item:nth-child(odd) .timeline-dot { right: -8px; }
+        .timeline-item:nth-child(even) .timeline-dot { left: -8px; }
+        .timeline-content img { max-width: 100%; border-radius: 10px; border: 2px solid var(--color-borde-card); margin-top: 10px; transition: transform 0.3s, box-shadow 0.3s; }
+        .timeline-content img:hover { transform: scale(1.03); box-shadow: 0 0 20px var(--glow-color); }
+        .btn.btn-success { border-color: var(--color-exito); color: var(--color-exito); box-shadow: 0 0 10px rgba(144, 238, 144, 0.3); text-shadow: 0 0 5px var(--color-exito); }
+        .btn.btn-success:hover { background-color: var(--color-exito); box-shadow: 0 0 25px var(--color-exito); animation: pulse-success 1.5s infinite; }
+        @keyframes pulse-success { 0% { box-shadow: 0 0 15px var(--color-exito); } 50% { box-shadow: 0 0 30px var(--color-exito); } 100% { box-shadow: 0 0 15px var(--color-exito); } }
+        #puzzle-section { padding: 2em 3em; text-align: center; }
+        .question { margin-bottom: 2em; }
+        .question label { display: block; margin-bottom: 10px; font-size: 1.2em; font-family: var(--fuente-cuerpo); font-style: italic; }
+        .question input { width: 80%; padding: 15px; font-size: 1em; background-color: rgba(0,0,0,0.6); border: 1px solid var(--color-secundario); border-radius: 8px; color: white; font-family: var(--fuente-cuerpo); box-shadow: 0 0 8px rgba(167, 197, 235, 0.4); text-align: center; }
+        .question input:focus { outline: none; border-color: white; box-shadow: 0 0 25px var(--color-secundario); }
+        #error-message { color: #ff5c5c; margin-top: 15px; font-weight: bold; }
+        #generator-section { padding: 3em; text-align: center; }
+        #reason-display { min-height: 100px; border: 2px dashed var(--color-borde-card); border-radius: 10px; padding: 20px; font-size: 1.5em; color: var(--color-secundario); display: flex; justify-content: center; align-items: center; transition: all 0.5s; text-shadow: 0 0 10px var(--color-secundario); }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        #final-surprise { margin-top: 30px; border-top: 1px solid var(--color-borde-card); padding-top: 30px; }
+        #final-message { font-size: 1.3em; color: var(--color-primario); text-shadow: 0 0 15px var(--glow-color); font-style: italic; }
+        @media (max-width: 768px) { #terminal { font-size: 1em; } #countdown-container { font-size: 1em; } #storybook-section{padding:1em;} .book-container {min-height: 1100px;} .timeline::before { left: 20px; } .timeline-item, .timeline-item:nth-child(even) { width: 100%; padding-left: 50px; padding-right: 0; text-align: left !important; left: 0; } .timeline-dot { left: 12px !important; } #puzzle-section, #generator-section { padding: 1.5em; } }
+    </style>
+</head>
+<body>
+    
+    <canvas id="particle-canvas"></canvas>
+    <canvas id="confetti-canvas"></canvas>
+
+    <audio id="audio-click" src="https://assets.mixkit.co/sfx/preview/mixkit-interface-device-click-2577.mp3" preload="auto"></audio>
+    <audio id="audio-success" src="https://assets.mixkit.co/sfx/preview/mixkit-game-bonus-reached-2065.mp3" preload="auto"></audio>
+    <audio id="audio-error" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
+
+    <div class="main-container">
+
+        <section id="intro-section">
+            <div class="intro-card">
+                <div id="terminal"></div>
+                <div style="text-align: center;">
+                    <button id="start-adventure-btn" class="btn hidden">[ Comenzar la Leyenda ]</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="storybook-section" class="hidden">
+            <div class="ornament"></div>
+            <h2>La Leyenda de la Princesa y el Panadero 🌹</h2>
+            <div class="ornament reversed"></div>
+            
+            <div class="book-container">
+                <div class="book-chapter visible">
+                    <h3>Capítulo I: El Encuentro</h3>
+                    <p><span class="drop-cap">É</span>rase una vez, en un reino no tan lejano, un día que no se olvidaría jamás: un 9 de junio. Su nombre era Aranzza, y aunque su llegada fue complicada, nació con una luz distinta, una chispa de resiliencia que jamás se apagó.</p>
+                    <p>En los pasillos silenciosos de su castillo, su corazón herido clamaba en secreto por alguien que viera más allá de los muros. Y fue entonces que apareció un panaderito llamado Lucas. No era un príncipe, pero tenía harina en las mejillas y un corazón enorme. El destino, que hasta entonces había tejido en silencio, finalmente tiró de los hilos dorados que los unían el 5 de agosto de 2022. Ese día, los ojos del panadero la vieron de verdad, no solo como una princesa, sino como un universo entero.</p>
+                </div>
+                <div class="book-chapter">
+                    <h3>Capítulo II: El Inicio del "Juntos"</h3>
+                    <p><span class="drop-cap">E</span>l panadero comenzó a construir puentes, no con grandes gestos, sino con la constancia de quien amasa el pan cada mañana: con ternura y respeto. Y así, entre paseos y confesiones, llegó el día 19 de noviembre de 2022. Con el alma en las manos, le preguntó: —¿Quieres que escribamos juntos esta historia? Y ella, con el corazón latiendo más fuerte que nunca, dijo que sí.</p>
+                    <p>Así comenzaron a construir un reino distinto, no de murallas, sino de confianza. No era un cuento perfecto, pero sí uno real. Las nubes grises en el cielo de la princesa comenzaron a disiparse, porque ahora tenía a alguien que le tomaba la mano y le susurraba: “Estoy contigo.” Y eso, para un corazón herido, es el mayor de los hechizos.</p>
+                </div>
+                <div class="book-chapter">
+                    <h3>Capítulo III: El Reino de las Pequeñas Cosas</h3>
+                    <p><span class="drop-cap">E</span>l primer año de su leyenda, 2023, fue un lienzo de primeras veces. Descubrieron que la magia más poderosa no estaba en los grandes bailes ni en los decretos reales, sino en los rituales silenciosos de su amor: en el aroma a café por la mañana, en el calor de una manta compartida mientras veían llover, y en la banda sonora de sus risas que por fin llenaba cada rincón del castillo.</p>
+                    <p>Aprendieron a navegar las pequeñas tormentas, a descifrar el lenguaje del corazón del otro en medio del cansancio, y a entender que el amor, como el mejor pan, no necesita ingredientes exóticos, sino la calidez constante, el cuidado diario y la paciencia para dejarlo crecer. Su reino privado se edificó sobre chistes malos que solo ellos entendían, silencios cómodos que decían más que mil palabras, y la certeza inamovible de tener un refugio al final del día.</p>
+                </div>
+                 <div class="book-chapter">
+                    <h3>Capítulo IV: Travesías y Mapas de Estrellas</h3>
+                    <p><span class="drop-cap">C</span>on la confianza como brújula, el 2024 se convirtió en el año de las grandes travesías. Cada viaje era un nuevo mapa estelar que dibujaban juntos en el firmamento de su memoria. El panadero, que solo conocía el calor de su horno, descubrió el mundo a través de los ojos curiosos de la princesa; aprendió a ver la magia en un atardecer y la historia en las piedras de un camino viejo.</p>
+                    <p>Y ella, que a veces temía a las sombras del bosque, encontró en sus brazos el refugio más seguro para ser valiente y explorar sin miedo. Juntos aprendieron que su amor no solo era un puerto seguro, sino también el barco más fuerte para zarpar hacia cualquier aventura, convirtiendo cada destino en un tesoro y cada camino en un recuerdo imborrable que solo a ellos pertenecía.</p>
+                </div>
+                <div class="book-chapter">
+                    <h3>Capítulo V: El Futuro y los "Felices para Siempre"</h3>
+                    <p><span class="drop-cap">A</span>hora, en el presente de 2025, su amor es un roble fuerte en medio del bosque. Han aprendido que el "felices para siempre" no es un destino final al que se llega, sino un camino que se elige construir cada mañana. Es la promesa susurrada en un abrazo, la decisión de tomarse de la mano cuando el sendero se vuelve rocoso.</p>
+                    <p>Su futuro no está escrito en un pergamino antiguo, sino en las páginas en blanco que les esperan, listas para ser llenadas con más risas, más viajes a reinos desconocidos, más panes horneados juntos y más canciones compartidas en la quietud de la noche. Su leyenda no ha terminado; de hecho, esto es solo el prólogo.</p>
+                </div>
+                <div class="book-chapter">
+                    <h3>Capítulo VI: Una Dedicatoria Eterna</h3>
+                    <p><span class="drop-cap">H</span>oy, en el día que la princesa Aranzza cumple 19 años, el panadero, el autor de este cuento, le dedica estas palabras a su protagonista, su reina y su todo:</p>
+                    <p style="text-align: center; font-weight: bold; color: var(--color-primario); text-shadow: 0 0 5px var(--glow-color);">"Gracias por existir, por no rendirte, por dejarme entrar en tu historia. Gracias por cada lágrima que te limpiaste sola y cada sonrisa que decidiste compartir conmigo. Eres más valiente de lo que crees, más hermosa de lo que ves, y más amada de lo que imaginas. Te prometo seguir cuidándote, protegiéndote y amándote cada día, como el primer día, como el último día. Porque nuestra historia aún se escribe, y lo mejor está por venir. ❤"</p>
+                    <p style="text-align: center; font-size: 1.5em; margin-top: 2em;">... continuará por siempre.</p>
+                </div>
+            </div>
+            
+            <div id="storybook-nav">
+                <button id="prev-page-btn" class="btn page-nav-btn">&lt; Anterior</button>
+                <button id="next-page-btn" class="btn page-nav-btn">Siguiente &gt;</button>
+            </div>
+            <div style="text-align:center;">
+                <button id="to-timeline-btn" class="btn hidden">Ver las Crónicas</button>
+            </div>
+        </section>
+
+        <section id="timeline-section" class="hidden">
+             <div class="intro">
+                 <div class="ornament"></div>
+                <h1>Nuestras Crónicas</h1>
+                <div class="ornament reversed"></div>
+                <div id="countdown-container">Forjando el tiempo...</div>
+                <p>Mi princesa, el tiempo a tu lado ha sido el más mágico de los reinos. Aquí están algunos de los capítulos visuales de nuestro amor.</p>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-content"><h3>El Primer Encuentro</h3><p>El día que nuestros destinos se entrelazaron.</p><img src="https://via.placeholder.com/300x200?text=Su+Primera+Foto" alt="Recuerdo 1"></div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-content"><h3>Nuestro Primer Festín</h3><p>Aquella velada donde las horas se convirtieron en instantes.</p><img src="https://via.placeholder.com/300x200?text=Lugar+de+la+Cita" alt="Recuerdo 2"></div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-content"><h3>La Gran Travesía</h3><p>Descubrir nuevos confines contigo es mi más grande aventura.</p><img src="https://via.placeholder.com/300x200?text=Foto+del+Viaje" alt="Recuerdo 3"></div></div>
+            </div>
+            <div style="text-align: center;"><button id="to-puzzle-btn" class="btn">Continuar la Leyenda...</button></div>
+        </section>
+
+        <section id="puzzle-section" class="interactive-card hidden">
+            <div class="ornament"></div><h2>Un Enigma Encantado</h2><div class="ornament reversed"></div>
+            <p>Para desvelar el siguiente capítulo, tu corazón debe recordar las respuestas a estos acertijos.</p>
+            <div class="question"><label for="q1">¿Cuál fue el primer nombre de cariño que te di en este reino?</label><input type="text" id="q1" placeholder="Tu respuesta aquí..."></div>
+            <div class="question"><label for="q2">¿Qué melodía se convirtió en el himno de nuestro amor?</label><input type="text" id="q2" placeholder="Solo el título..."></div>
+            <div class="question"><label for="q3">¿Cómo se llamaba aquella posada de nuestro primer festín?</label><input type="text" id="q3" placeholder="El nombre del lugar..."></div>
+            <button id="check-answers-btn" class="btn">Desvelar Secreto</button>
+            <p id="error-message" class="hidden">El enigma se resiste. ¡Inténtalo de nuevo!</p>
+        </section>
+
+        <section id="generator-section" class="interactive-card hidden">
+            <div class="ornament"></div><h2>El Oráculo del Corazón</h2><div class="ornament reversed"></div>
+            <p>Feliz mesario, mi princesa. El oráculo revela un sinfín de verdades sobre mi amor por ti. Pide y te será revelado.</p>
+            <div id="reason-display">Consulta el oráculo...</div>
+            <button id="generate-reason-btn" class="btn">Revelar una Razón</button>
+            <div id="final-surprise" class="hidden">
+                <div class="ornament"></div>
+                <h3>Una Dedicatoria Final...</h3>
+                <button id="reveal-final-btn" class="btn btn-success">Y la verdad más profunda de todas...</button>
+                <p id="final-message" class="hidden"></p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Lógica de Partículas, Confeti, Secreto ---
+        let particles = []; let heartParticles = []; let isHeartActive = false; const particleCanvas = document.getElementById('particle-canvas'); const pCtx = particleCanvas.getContext('2d'); let pW = particleCanvas.width = window.innerWidth; let pH = particleCanvas.height = window.innerHeight; function initParticles() { particles = []; heartParticles = []; let n = (pW * pH) / 9e3; for (let i = 0; i < n; i++) { let s = (Math.random() * 2) + 1, x = Math.random() * (pW - s * 2) + s * 2, y = Math.random() * (pH - s * 2) + s * 2, dX = Math.random() * .4 - .2, dY = Math.random() * .4 - .2, c = Math.random() > .1 ? 'rgba(255, 215, 0, 0.5)' : 'rgba(167, 197, 235, 0.5)', o = Math.random() * 0.5 + 0.2; particles.push({ x, y, dX, dY, s, c, o, startO: o }); } } function animateParticles() { requestAnimationFrame(animateParticles); pCtx.clearRect(0, 0, pW, pH); if (!isHeartActive) { for (let p of particles) { if (p.x > pW || p.x < 0) p.dX = -p.dX; if (p.y > pH || p.y < 0) p.dY = -p.dY; p.x += p.dX; p.y += p.dY; if (Math.random() > 0.99) { p.o = Math.random() * 0.7 + 0.3; } else { p.o -= 0.01; if (p.o < 0) p.o = p.startO; } pCtx.globalAlpha = p.o; pCtx.beginPath(); pCtx.arc(p.x, p.y, p.s, 0, Math.PI * 2); pCtx.fillStyle = p.c; pCtx.fill(); pCtx.globalAlpha = 1; } } else { let scale = 1 + 0.1 * Math.sin(Date.now() / 250); for (let i = 0; i < particles.length; i++) { let p = particles[i]; let h = heartParticles[i]; let targetX = (h.x * 15 * scale) + pW / 2; let targetY = (h.y * 15 * scale) + pH / 2; p.x += (targetX - p.x) * 0.05; p.y += (targetY - p.y) * 0.05; pCtx.beginPath(); pCtx.arc(p.x, p.y, p.s, 0, Math.PI * 2); pCtx.fillStyle = p.c; pCtx.fill(); } } }
+        window.addEventListener('resize', () => { pW = particleCanvas.width = window.innerWidth; pH = particleCanvas.height = window.innerHeight; initParticles(); }); initParticles(); animateParticles(); function formHeart() { if (isHeartActive) return; isHeartActive = true; playSound('audio-success'); heartParticles = []; for (let i = 0; i < particles.length; i++) { let t = Math.random() * 2 * Math.PI; let x = 16 * Math.pow(Math.sin(t), 3); let y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)); heartParticles.push({ x: x, y: y }); } setTimeout(() => { isHeartActive = false; }, 5000); } const secretWord = ['m', 'a', 'g', 'i', 'a']; let userInput = []; window.addEventListener('keydown', (e) => { if (e.key.length === 1 && e.key.match(/[a-z]/i)) { userInput.push(e.key.toLowerCase()); userInput = userInput.slice(-secretWord.length); if (userInput.join('') === secretWord.join('')) { formHeart(); } } }); function triggerConfetti(){const canvas=document.getElementById('confetti-canvas');const ctx=canvas.getContext('2d');let w=canvas.width=window.innerWidth;let h=canvas.height=window.innerHeight;let confetti=[];const colors=['#FFD700','#a7c5eb','#fdfdfd'];function initConfetti(){for(let i=0;i<200;i++){confetti.push({x:Math.random()*w,y:Math.random()*h-h,size:Math.random()*5+3,speed:Math.random()*5+2,gravity:Math.random()*0.1+0.05,color:colors[Math.floor(Math.random()*colors.length)],angle:Math.random()*2*Math.PI,spin:Math.random()*.2-.1});}}function drawConfetti(){ctx.clearRect(0,0,w,h);for(let c of confetti){c.y+=c.speed;c.speed+=c.gravity;c.x+=Math.sin(c.angle)*2;c.angle+=c.spin;ctx.fillStyle=c.color;ctx.beginPath();ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.angle);ctx.fillRect(-c.size/2,-c.size/2,c.size,c.size);ctx.restore();}confetti=confetti.filter(c=>c.y<h+20);if(confetti.length>0)requestAnimationFrame(drawConfetti);else ctx.clearRect(0,0,w,h);}initConfetti();drawConfetti();}
+        
+        // --- Lógica General y de Navegación ---
+        function playSound(id){try{document.getElementById(id).cloneNode(true).play();}catch(e){}}
+        document.body.addEventListener('click',()=>{}, {once:true});
+        let isTyping=false;
+        function typeWriter(el,txt,spd,cb){isTyping=true;let i=0;el.innerHTML="";const cursor='<span class="cursor"></span>';el.innerHTML=cursor;function type(){if(i<txt.length){el.innerHTML=txt.substring(0,i+1)+cursor;i++;setTimeout(type,spd);}else{el.innerHTML=txt;isTyping=false;if(cb)cb();}}type();}
+        
+        const introSection=document.getElementById('intro-section'); const storybookSection=document.getElementById('storybook-section'); const timelineSection=document.getElementById('timeline-section'), puzzleSection=document.getElementById('puzzle-section'), generatorSection=document.getElementById('generator-section');
+        const startAdventureBtn = document.getElementById('start-adventure-btn'); const toTimelineBtn = document.getElementById('to-timeline-btn'); const toPuzzleBtn = document.getElementById('to-puzzle-btn'); const checkAnswersBtn = document.getElementById('check-answers-btn'); const generateReasonBtn = document.getElementById('generate-reason-btn'); const revealFinalBtn = document.getElementById('reveal-final-btn');
+        const bookPages = document.querySelectorAll('.book-chapter'); const prevPageBtn = document.getElementById('prev-page-btn'); const nextPageBtn = document.getElementById('next-page-btn');
+        let currentPageIndex = 0;
+
+        function updateBook() {
+            bookPages.forEach((page, index) => {
+                page.classList.remove('flipped', 'visible');
+                if (index === currentPageIndex) {
+                    page.classList.add('visible');
+                }
+                if (index < currentPageIndex) {
+                    page.classList.add('flipped');
+                } else {
+                    page.classList.remove('flipped');
+                }
+            });
+            prevPageBtn.disabled = currentPageIndex === 0;
+            nextPageBtn.disabled = currentPageIndex === bookPages.length - 1;
+            toTimelineBtn.classList.toggle('hidden', currentPageIndex !== bookPages.length - 1);
+        }
+
+        nextPageBtn.addEventListener('click', () => { if (currentPageIndex < bookPages.length - 1) { playSound('audio-click'); currentPageIndex++; updateBook(); } });
+        prevPageBtn.addEventListener('click', () => { if (currentPageIndex > 0) { playSound('audio-click'); currentPageIndex--; updateBook(); } });
+
+        startAdventureBtn.addEventListener('click', () => { playSound('audio-click'); introSection.classList.add('fade-out'); setTimeout(() => { introSection.classList.add('hidden'); storybookSection.classList.remove('hidden'); storybookSection.classList.add('fade-in'); updateBook(); }, 500); });
+        toTimelineBtn.addEventListener('click', () => { playSound('audio-click'); storybookSection.classList.add('fade-out'); setTimeout(() => { storybookSection.classList.add('hidden'); timelineSection.classList.remove('hidden'); timelineSection.classList.add('fade-in'); }, 500); });
+        toPuzzleBtn.addEventListener('click',()=>{playSound('audio-click');timelineSection.classList.add('hidden');puzzleSection.classList.remove('hidden');puzzleSection.classList.add('fade-in');window.scrollTo(0,0);});
+        checkAnswersBtn.addEventListener('click',()=>{ const correct=["mi amor","perfect","el globo"]; const user=[document.getElementById('q1').value.trim().toLowerCase(),document.getElementById('q2').value.trim().toLowerCase(),document.getElementById('q3').value.trim().toLowerCase()]; if(user.join()===correct.join()){playSound('audio-success');triggerConfetti();puzzleSection.classList.add('hidden');generatorSection.classList.remove('hidden');generatorSection.classList.add('fade-in');}else{document.getElementById('error-message').classList.remove('hidden');playSound('audio-error');} });
+        
+        let reasonsGenerated=0; let lastReasonIndex = -1;
+        generateReasonBtn.addEventListener('click',()=>{if(isTyping)return; playSound('audio-click');let idx; do{idx=Math.floor(Math.random()*reasons.length);}while(reasons.length>1&&idx===lastReasonIndex); lastReasonIndex=idx;typeWriter(document.getElementById('reason-display'),`Te amo ${reasons[idx]}`,40,()=>{reasonsGenerated++;if(reasonsGenerated>=10){document.getElementById('final-surprise').classList.remove('hidden');document.getElementById('final-surprise').classList.add('fade-in');}});});
+        revealFinalBtn.addEventListener('click', function(){ playSound('audio-click');
+            const finalMessageText = "Gracias por existir, por no rendirte, por dejarme entrar en tu historia. Gracias por cada lágrima que te limpiaste sola y cada sonrisa que decidiste compartir conmigo. Eres más valiente de lo que crees, más hermosa de lo que ves, y más amada de lo que imaginas. Te prometo seguir cuidándote, protegiéndote y amándote cada día, como el primer día, como el último día. Porque nuestra historia aún se escribe, y lo mejor está por venir. ❤";
+            const finalMessageEl=document.getElementById('final-message'); finalMessageEl.classList.remove('hidden');
+            typeWriter(finalMessageEl, finalMessageText, 60);
+            this.classList.add('hidden');
+            this.parentElement.querySelector('h3').classList.add('hidden');
+        });
+        
+        const observer=new IntersectionObserver(e=>{e.forEach(i=>{if(i.isIntersecting){i.target.classList.add('visible');observer.unobserve(i.target);}})},{threshold:0.2});
+        document.querySelectorAll('.timeline-item').forEach(i=>{observer.observe(i);});
+        const cards=document.querySelectorAll('.interactive-card');
+        cards.forEach(card=>{card.addEventListener('mousemove',e=>{const rect=card.getBoundingClientRect();const x=(e.clientX-rect.left-rect.width/2)/20;const y=(e.clientY-rect.top-rect.height/2)/-20;card.style.transform=`rotateY(${x}deg) rotateX(${y}deg)`;});card.addEventListener('mouseleave',()=>{card.style.transform='rotateY(0) rotateX(0)';});});
+        const countdownElement = document.getElementById('countdown-container');
+        const targetDate = new Date('2025-09-19T00:00:00').getTime();
+        const countdownInterval = setInterval(() => { const now = new Date().getTime(); const distance = targetDate - now; if (distance < 0) { clearInterval(countdownInterval); countdownElement.innerHTML = "¡Feliz Aniversario, Mi Princesa!"; return; } const days = Math.floor(distance / (1000 * 60 * 60 * 24)); const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)); const seconds = Math.floor((distance % (1000 * 60)) / 1000); countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s para nuestro día`; }, 1000);
+        
+        const terminal = document.getElementById('terminal');
+        const terminalLines = [ "Se despliega un antiguo pergamino...", "Buscando a la princesa del reino...", "Princesa encontrada: Aranzza", "Revelando las crónicas de su amor...", "La leyenda está lista." ];
+        function runIntroSequence(lineIndex) { if (lineIndex >= terminalLines.length) { startAdventureBtn.classList.remove('hidden'); startAdventureBtn.classList.add('fade-in'); return; } const line = document.createElement('div'); line.className = 'terminal-line'; terminal.appendChild(line); typeWriter(line, terminalLines[lineIndex], 55, () => { setTimeout(() => { runIntroSequence(lineIndex + 1); }, 600); }); }
+        
+        runIntroSequence(0);
+        
+        const reasons = ["por tu risa contagiosa.", "porque me haces sentir afortunado.", "por el brillo en tus ojos.", "porque cada día contigo es una aventura.", "por tu inteligencia.", "porque siempre me sacas una sonrisa.", "por tu amabilidad.", "porque eres mi lugar seguro.", "por tu fortaleza.", "porque me inspiras a ser mejor.", "por tus pequeños gestos de amor.", "por nuestras largas conversaciones.", "por cómo me miras.", "por tu belleza interior y exterior.", "porque compartimos sueños.", "por tu paciencia.", "porque eres mi mayor fan.", "por tu sentido del humor.", "porque me enseñas cosas nuevas.", "porque existes en mi vida.", "por tu talento.", "porque encuentras belleza en lo simple.", "por tus abrazos que curan todo.", "porque confías en mí.", "porque nuestros recuerdos son tesoros.", "por tu espontaneidad.", "por tu noble corazón.", "porque eres mi calma.", "por cómo cuidas a los tuyos.", "porque nos complementamos.", "por tu voz.", "porque eres mi equipo.", "por cómo te emocionas.", "por tu genuinidad.", "por nuestro futuro juntos", "porque me retas a crecer.", "por tu capacidad de perdonar.", "porque eres mi mejor amiga.", "por tus besos.", "por tu aroma.", "porque me das esperanza.", "por tu energía.", "porque eres la pieza que me faltaba.", "por la seguridad que me das.", "porque protagonizas mis sueños.", "por cómo respetas mis ideas.", "por tu valentía.", "porque eres mi ancla y mis alas.", "por tus sacrificios.", "porque mi vida es mejor contigo.", "por cómo te concentras.", "por nuestras bromas internas.", "porque me cuidas.", "por tu buen gusto.", "porque tus 'te amo' son sinceros.", "por cómo tomas mi mano.", "porque amo estar en silencio contigo.", "por tu liderazgo.", "por tu dedicación.", "por tu cabello.", "porque me enseñaste a amar.", "porque eres una respuesta a mis plegarias.", "por tu optimismo.", "por ser mi felicidad diaria.", "por cómo te acurrucas.", "por tus valores.", "porque eres mi luz.", "porque me haces sentir invencible.", "por tu forma de bailar.", "por ser mi sol.", "porque celebras mis logros.", "por ser la melodía de mi vida.", "por tu resiliencia.", "por tu pasión por aprender.", "porque eres mi confidente.", "por tu lealtad.", "por hacerme sentir comprendido.", "por tu alma artística.", "porque creo en los finales felices gracias a ti.", "por el calor de tus manos.", "porque eres mi aventura favorita.", "por la forma en que tus labios encajan con los míos.", "porque me haces más fuerte.", "por tu espíritu libre.", "porque eres mi refugio.", "porque tienes una mente brillante.", "por tu generosidad.", "porque eres la calma de mi alma.", "por cada segundo a mi lado.", "por nuestra conexión única.", "por saber escuchar.", "por tu empatía.", "porque eres un sueño hecho realidad.", "porque haces extraordinario lo ordinario.", "por impulsarme a seguir mis pasiones.", "por querer compartir cada amanecer conmigo.", "por tu honestidad.", "porque eres mi equilibrio.", "porque me mostraste un amor que no creía posible.", "por tu autenticidad.", "porque eres la historia que quiero contar.", "porque mi corazón se acelera al verte.", "por inspirarme a cuidarme.", "porque eres mi cable a tierra.", "por la ternura en tu toque.", "por tu flexibilidad.", "por ser la persona más real que conozco.", "por la paz que me das.", "porque me enseñaste el significado del amor.", "porque haces del mundo un lugar mejor.", "porque eres mi más bonita casualidad.", "por la música de tu risa.", "porque siempre sabes qué decir.", "por tu organización.", "por tu amor a la naturaleza.", "por ser mi compañera de viaje ideal.", "porque me dejas el último trozo.", "por tu esfuerzo en nuestra relación.", "por ser la inspiración de mis ideas.", "por tu habilidad para resolver problemas.", "porque eres mi faro.", "porque te elijo cada día.", "por ser perfectamente imperfecta.", "por desafiar mi forma de pensar.", "por ser el mejor capítulo de mi vida.", "por tu mal (o buen) sentido de la orientación.", "porque me mantienes joven.", "por cómo me presumes.", "por el brillo en tus ojos cuando me ves.", "por nuestros silencios cómodos.", "por tu fuerza de voluntad.", "por tu amor a lo desconocido.", "porque calmas mi mente.", "por tu olor.", "porque eres mi hogar.", "por tu sabiduría.", "porque quiero envejecer contigo.", "por la forma en que dices mi nombre.", "por nuestros planes.", "por abrirme a nuevas experiencias.", "porque eres mi bendición.", "por tu entrega.", "por ser mi persona favorita en el universo.", "por el simple hecho de existir.", "porque nuestra historia es mi preferida.", "por tu sazón (o el intento).", "porque me haces creer en la magia.", "porque me has dado mis mejores recuerdos.", "por poder ser un tonto contigo.", "por cómo te muerdes el labio.", "porque tienes solución para todo.", "por ser mi cómplice.", "porque me enseñaste a ser paciente.", "porque eres dueña de mis suspiros.", "por tu estilo.", "por ser tan considerada.", "porque juntos podemos todo.", "por cómo te preocupas por mí.", "por compartirte mis secretos.", "por ser mi inspiración.", "por ver lo bueno en la gente.", "por ser la más divertida.", "porque me haces sentir completo.", "por tu memoria para los detalles.", "porque eres la persona que siempre soñé.", "por cómo me motivas.", "porque eres mi sol, mi luna y mis estrellas.", "por tu inmensa capacidad de amar.", "porque eres mi destino.", "por hacerme sentir seguro.", "por ser la persona más increíble que conozco.", "por tu espíritu juguetón.", "por darle color a mi vida.", "por enseñarme a ser vulnerable.", "por querer construir un imperio conmigo.", "porque eres mi gran aventura.", "porque me haces sentir que todo es posible.", "porque eres mi persona.", "por tu sentido de la justicia.", "por tu increíble resiliencia.", "porque tus manos siempre buscan las mías.", "porque eres mi primer y último pensamiento.", "por convertir un mal día en uno bueno.", "porque me haces sentir vivo.", "por respetar mi espacio.", "por entender mi silencio.", "por tu fuerza interior.", "porque eres arte.", "por reírte de mis malos chistes.", "porque eres mi lugar feliz.", "porque cada día contigo es un regalo.", "por perdonar mis errores.", "por enseñarme a ver la vida diferente.", "por querer compartirlo todo conmigo.", "por tu humildad.", "por me das alas para volar.", "por tu forma de caminar.", "por hacerme sentir orgulloso.", "por tu conciencia social.", "porque eres mi brújula.", "por mantener la calma en el caos.", "por hacerme querer ser un buen hombre.", "por entregarte en cada beso.", "por ser mi persona favorita para un café.", "por tu don de hacer sentir bien a otros.", "por hacerme creer en el 'para siempre'.", "por cómo me miras a escondidas.", "porque eres mi mayor logro.", "por hacer de cualquier lugar un hogar.", "por hacerme olvidar los problemas.", "porque eres mi definición de perfección.", "por animarme a intentar cosas nuevas.", "por querer crear mil recuerdos más.", "porque eres mi todo.", "porque eres mi amor eterno.", "por cada detalle fascinante de ti.", "porque me complementas.", "porque nuestro amor es una canción perfecta.", "por tu valentía.", "porque juntos somos invencibles.", "porque nuestro futuro es brillante.", "por hacerme querer gritar que te amo.", "porque me elegiste.", "porque eres, simplemente, el amor de mi vida.", "por ayudarme a encontrar mis llaves.", "por escuchar mis divagaciones.", "por tu manía con el orden.", "por saber qué voy a pedir.", "por tararear cuando estás feliz.", "por odiar las mismas series que yo.", "por dormir en posiciones extrañas.", "por tus masajes inesperados.", "por siempre tener hambre.", "por buscar mi calor en la noche.", "por dejarme elegir la película.", "por tus ojos al ver postre.", "por tu risa en el cine.", "por tus celos de broma.", "por saberte mis historias de memoria.", "por tus intentos de asustarme.", "por robarme las cobijas.", "por ser mi cómplice para romper la dieta.", "por tu forma de contar historias.", "por hacerme cosquillas.", "por siempre encontrar algo en Netflix.", "por reírte de ti misma.", "por tu colección de stickers.", "por los memes que me envías.", "por tu pijama rota favorita.", "por quejarte del frío.", "por tu amor al café.", "por estar siempre dispuesta a una siesta.", "por cantar en la ducha.", "por hacerme más sociable.", "por vestirte increíble sin esfuerzo.", "por tu emoción en los cumpleaños.", "por encontrar las mejores ofertas.", "por ser mi fotógrafa.", "por pedirme que abra los frascos.", "por tu amor al chisme sano.", "por preguntar '¿qué piensas?'.", "por defenderme siempre.", "por cocinar para mis antojos.", "por ser la mejor copiloto.", "por tu forma de regatear.", "por animar cualquier fiesta.", "por hacerme probar comida nueva.", "por sacarme a bailar.", "por cuidar tus plantas.", "por ser mi agenda humana.", "por robarme papas fritas.", "por hacerme sentir como un superhéroe.", "por tus preguntas profundas.", "por llevarte bien con mi familia.", "por enseñarme a ser ordenado.", "por ser mi motivación en el gym.", "por consentirme.", "por tu gusto por los documentales de crímenes.", "por criticar películas conmigo.", "por engancharme a nuevas series.", "por ser mi compañera de conciertos.", "por enseñarme a apreciar el arte.", "por tu concentración en los videojuegos.", "por traducir indirectas.", "por llenar mi galería de fotos.", "por ayudarme a elegir ropa.", "por ser mi ancla en el estrés.", "por tu visión única de la vida.", "por ser mi elección para un apocalipsis zombie.", "por inspirarme a escribir.", "por nuestra conexión kármica.", "por ser mi musa.", "por el universo en tu mirada.", "porque nuestro amor es una novela.", "por ser mi serendipia.", "por hacerme soñar más grande.", "por ser la melodía en mi silencio.", "por nuestra constelación personal.", "por ser mi enigma favorito.", "por mostrarme colores nuevos.", "por ser mi sinestesia.", "porque nuestro amor es mi religión.", "por ser la arquitecta de mis sueños.", "por hacerme sentir etéreo.", "por ser la poesía de mi alma.", "por ser mi cronopio.", "por enseñarme el lenguaje de las miradas.", "por ser mi puerto seguro.", "por ser la obra de arte de mi museo.", "por ser mi locura más cuerda.", "por hacerme sentir infinito.", "porque nuestro amor es un eco eterno.", "por ser la alquimia de mi vida.", "por ser mi pasaje a otros mundos.", "por ser la calma antes de la tormenta.", "por ser la simetría de mi caos.", "por ser mi sueño lúcido.", "por hacerme sentir más yo mismo.", "por ser la banda sonora de mi vida.", "por ser la respuesta del universo.", "por ser mi faro en la niebla.", "porque nuestro amor es mi obra maestra.", "por ser mi anhelo y mi realidad.", "por ser la magia en este mundo.", "por ser el verso que siempre busqué.", "por hacerme sentir hecho de estrellas.", "por ser mi paz y mi aventura.", "por ser la geografía de mi felicidad.", "por ser mi amuleto.", "por ser el color que me faltaba.", "porque nuestro amor es nuestro propio idioma.", "por ser el tesoro en mi arcoíris.", "por ser la historia que contaré a mis nietos.", "por hacerme creer en lo imposible.", "por ser la partitura de mi corazón.", "por ser mi refugio del cinismo.", "por darle sentido a las estrellas fugaces.", "porque nuestro amor es mi ancla y mi vela.", "por ser la prueba de que los milagros existen.", "por ser mi café de la mañana.", "por ser mi solsticio y equinoccio.", "por ser la historia que nunca me cansaré de leer.", "por ser mi epifanía.", "por ser el norte de mi brújula.", "porque eres mi todo, y mucho más."];
+    });
+    </script>
+</body>
+</html>
